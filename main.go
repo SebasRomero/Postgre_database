@@ -8,13 +8,38 @@ func main() {
 	//Conection to the database
 	storage.NewPostgresDB()
 
+	//Invoice creation
+	/*
+	   storageHeader := storage.NewPsqlInvoiceHeader(storage.Pool())
+	   	storageItems := storage.NewPsqlInvoiceItem(storage.Pool())
+	   	storageInvoice := storage.NewPsqlInvoice(
+	   		storage.Pool(),
+	   		storageHeader,
+	   		storageItems,
+	   	)
+
+	   	m := &invoice.Model{
+	   		Header: &invoiceheader.Model{
+	   			Client: "Pacho",
+	   		},
+	   		Items: invoiceitem.Models{
+	   			&invoiceitem.Model{ProductID: 4},
+	   		},
+	   	}
+
+	   	invoiceService := invoice.NewService(storageInvoice)
+	   	if err := invoiceService.Create(m); err != nil {
+	   		log.Fatalf("invoice.Create: %v", err)
+	   	}
+	*/
+
 	//Define the service
 	/*
 		productStorage := storage.NewPsqlProduct(storage.Pool())
 		productService := product.NewService(productStorage)
 	*/
 
-	//Here we delete the ID specified
+	//Here we delete the item ID specified
 	/*
 		err := productService.Delete(3)
 		if err != nil {
@@ -36,7 +61,7 @@ func main() {
 	   	}
 	*/
 
-	//Example to how to create a item
+	//Example to how to create an item
 	/*
 	   m := &product.Model{
 	   		Name:  "Java course",
