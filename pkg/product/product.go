@@ -1,9 +1,14 @@
 package product
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
+)
+
+var (
+	ErrIDNotFound = errors.New("Product does not have an ID")
 )
 
 //Product model
@@ -39,10 +44,10 @@ type Models []*Model
 type Storage interface {
 	Migrate() error
 	Create(*Model) error
-	// Update(*Model) error
+	Update(*Model) error
 	GetAll() (Models, error)
 	GetByID(uint) (*Model, error)
-	// Delete(uint) error
+	Delete(uint) error
 }
 
 //Service of product
@@ -64,6 +69,21 @@ func (s *Service) Migrate() error {
 func (s *Service) Create(m *Model) error {
 	m.CreatedAt = time.Now()
 	return s.storage.Create(m)
+}
+
+//Update is used to update a product
+func (s *Service) Update(m *Model) error {
+	if m.ID == 0 {
+		return ErrIDNotFound
+	}
+	m.UpdatedAt = time.Now()
+
+	return s.storage.Update(m)
+}
+
+//Delete is used to delete a product
+func (s *Service) Delete(id uint) error {
+	return s.storage.Delete(id)
 }
 
 //GetAll is used to get all the products

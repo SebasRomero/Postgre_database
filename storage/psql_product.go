@@ -23,9 +23,11 @@ const (
 	)`
 	psqlCreateProduct = `INSERT INTO products(name, 
 		observations, price, created_at) VALUES($1, $2, $3, $4) RETURNING id`
-	psqlGetAllProduct = `SELECT id, name, observations, price,
-	created_at, updated_at FROM products`
+	psqlGetAllProduct  = `SELECT * FROM products`
 	psqlGetProductByID = psqlGetAllProduct + " WHERE id = $1"
+	psqlUpdateProduct  = `UPDATE products SET name = $1, observations = $2,
+	price = $3, updated_at = $4 WHERE id = $5`
+	psqlDeleteProduct = `DELETE FROM products WHERE id = $1`
 )
 
 //PsqlProduct used to work with Postgre - Product
@@ -73,6 +75,58 @@ func (p *PsqlProduct) Create(m *product.Model) error {
 		return err
 	}
 	fmt.Println("Row created succesfully")
+	return nil
+}
+
+//Update implements the interface product.Storage
+func (p *PsqlProduct) Update(m *product.Model) error {
+	statement, err := p.db.Prepare(psqlUpdateProduct)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+	res, err := statement.Exec(
+		m.Name,
+		stringtoNull(m.Observations),
+		m.Price,
+		timeToNull(m.UpdatedAt),
+		m.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("The product with the ID %d doesn't exist", m.ID)
+	}
+
+	fmt.Println("The row was updated succesfully")
+	return nil
+}
+
+//Delete implements the interface product.Storage
+func (p *PsqlProduct) Delete(id uint) error {
+	statement, err := p.db.Prepare(psqlDeleteProduct)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	res, err := statement.Exec(id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("The product with the ID %d doesn't exist", id)
+	}
+	fmt.Println("The row was deleted succesfully")
 	return nil
 }
 
